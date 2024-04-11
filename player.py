@@ -1,13 +1,14 @@
 import random
+import board
 from constants import *
-from main import Board
+
 
 class Player:
   def __init__(self, player_symbol):
     self.player_symbol = player_symbol
     self.pawns = [Pawn(player_symbol), Pawn(player_symbol)]
 
-  def play_move(self, board : Board):
+  def play_move(self, board : board.Board):
     print(f"It is now player {self.player_symbol}'s turn.\n")
     self.display_current_pawns(self.pawns)
     while True:
@@ -20,7 +21,7 @@ class Player:
       else:
         print("That is not a valid move!\n")
   
-  def roll_dice(self, board: Board, pawns):
+  def roll_dice(self, board : board.Board, pawns):
     first_dice = random.randint(1, 6)
     second_dice = random.randint(1, 6)
     dices = [first_dice, second_dice]
@@ -41,7 +42,7 @@ class Player:
     self.play_dice(dice_choice_int, board, pawns)
     self.play_dice(other_choice, board, pawns)
 
-  def play_dice(self, dice, board: Board, pawns):
+  def play_dice(self, dice, board : board.Board, pawns):
     pawn_numbers = ["1", "2"]
 
     while True:
