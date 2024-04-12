@@ -18,15 +18,15 @@ def get_number_from_operation(operation_choice, square_number, dice):
     if operation_choice == "a":
       final_number = square_number + dice
     elif operation_choice == "s":
-      final_number = square_number - dice
+      final_number = max(square_number - dice, 0)
     elif operation_choice == "m":
       final_number = square_number * dice
     elif operation_choice == "d":
       final_number = square_number / dice
 
-    return int(final_number)
+    return final_number
 
-def is_prime(n):
+def is_prime_above_10(n):
     if n < 2:
         return False
     i = 2
@@ -34,4 +34,5 @@ def is_prime(n):
         if n % i == 0:
             return False
         i += 1
-    return True
+
+    return n > 10

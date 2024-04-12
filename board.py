@@ -23,11 +23,12 @@ class Board:
 
     return count == 2
 
-  def find_prime_squares(self, symbol):
+  def find_new_prime_squares(self, symbol):
     output_squares = []
 
     for square in self.board:
-      if str(square.pawn) == symbol and is_prime(square.number) and square.number > 10:
+      pawn = square.pawn
+      if str(pawn) == symbol and is_prime_above_10(square.number) and pawn.square != pawn.previous_square:
          output_squares.append(square)
 
     return output_squares
@@ -52,8 +53,21 @@ class Board:
     square = self.get_square_from_number(number)
     square.add_pawn(pawn)
 
+  def swap_pawns(self, pawn_one, pawn_two):
+    result_message = f"Swapping pawns on square {pawn_one.square.number} and square {pawn_two.square.number}\n"
+    pawn_one_square = pawn_one.square
+    pawn_two_square = pawn_two.square
+
+    pawn_one_square.remove_pawn(pawn_one)
+    pawn_two_square.remove_pawn(pawn_two)
+
+    pawn_two_square.add_pawn(pawn_one)
+    pawn_one_square.add_pawn(pawn_two)
+
+    return result_message
+
   def move_pawn(self, pawn, original_square : Square, result_square: Square):
-    result_message = f"Moving pawn from {original_square.number} to {result_square.number}\n"
+    result_message = f"Moving pawn {pawn.player_symbol} from {original_square.number} to {result_square.number}\n"
 
     original_square.remove_pawn(pawn)
     if not result_square.is_end_square() and not result_square.is_start_square() and result_square.has_pawn():
@@ -80,10 +94,7 @@ class Board:
 
     if final_number > END_SQUARE:
       return False, "You cannot exceed square 101\n"
-    
-    if final_number < START_SQUARE:
-      return False, "You cannot go below square 0\n"
-    
+  
     if final_number - math.floor(final_number) != 0:
       return False, "You cannot divide by that number\n"
     
@@ -92,7 +103,8 @@ class Board:
   def apply_move(self, dice_choice, pawn, operation_choice): # returns result of move.
     square = pawn.square
     final_number = get_number_from_operation(operation_choice, square.number, dice_choice)
-    result_square = self.get_square_from_number(final_number)
+    final_number_int = int(final_number)
+    result_square = self.get_square_from_number(final_number_int)
     result_message = self.move_pawn(pawn, square, result_square)
     return result_message
 

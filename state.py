@@ -39,6 +39,8 @@ class Engine:
     while self.global_playing:
       player = self.state.players[turn]
       other_player = self.state.players[(turn + 1) % 2]
+      for pawn in player.pawns:
+        pawn.reset_square()
 
       self.state.board.print_board()
       moves = player.play_move(self.state.board)
@@ -57,7 +59,7 @@ class Engine:
           break
 
       if self.power_cards_mode:
-        prime_squares = self.state.board.find_prime_squares(player.player_symbol)
+        prime_squares = self.state.board.find_new_prime_squares(player.player_symbol)
         if len(prime_squares) > 0:
           card = self.state.board.deck.draw_card()
           print(f"Player {player.player_symbol} drew card \"{card.description()}\"!\n")

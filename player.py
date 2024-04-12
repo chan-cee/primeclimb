@@ -14,7 +14,7 @@ class Player:
 
   def restrict_operations(self):
     self.all_operations = False
-    
+
   def enable_operations(self):
     self.all_operations = True
 
@@ -58,7 +58,7 @@ class Player:
         if board.check_win(self.player_symbol):
           return [] # We leave it to state.py to manage victory conditions
         
-        pawn_choice = self.choose_pawn(self.pawns) 
+        pawn_choice = self.choose_pawn(self.pawns, dice) 
         action = self.choose_operation(self.get_valid_operations())
         move = Move(dice, pawn_choice, action)
         is_valid_move, error = board.validate_move(move.dice_roll, move.pawn, move.operation)
@@ -102,7 +102,7 @@ class Player:
 
     return [dice_choice_int, other_choice]
 
-  def choose_pawn(self, pawns):
+  def choose_pawn(self, pawns, movement):
     pawn_one, pawn_two = pawns
     if pawn_one.square.number == END_SQUARE:
       return pawn_two
@@ -115,7 +115,28 @@ class Player:
     pawn_index_int = None
 
     while pawn_choice not in pawn_numbers:
-      pawn_choice = input(f"Which pawn to use: ")
+      pawn_choice = input(f"Which pawn to use for movement {movement}: ")
+      if pawn_choice not in pawn_numbers:
+        print("Enter a valid pawn number!\n")
+
+    pawn_index_int = int(pawn_choice) - 1
+    return pawns[pawn_index_int]
+  
+  def choose_prime_pawns(self, pawns):
+    pawn_one, pawn_two = pawns
+    if not is_prime_above_10(pawn_one.square.number):
+      return pawn_two
+    
+    if not is_prime_above_10(pawn_two.square.number):
+      return pawn_one
+
+    pawn_numbers = ["1", "2"]
+    pawn_choice = None
+    pawn_index_int = None
+    print("Both pawns on prime numbers")
+
+    while pawn_choice not in pawn_numbers:
+      pawn_choice = input(f"Which pawn to use for action card: ")
       if pawn_choice not in pawn_numbers:
         print("Enter a valid pawn number!\n")
 
@@ -191,12 +212,16 @@ class PlayerAI:
     self.player_symbol = player_symbol
     self.pawns = [Pawn(player_symbol), Pawn(player_symbol)]
 
+  def set_other_player(self, other_player):
+    self.other_player = other_player
+
   def play_move(self, board: Board): # Should return a list of valid Moves that needs to be made by the AI
     pass
 
 class Pawn:
   def __init__(self, player_symbol):
     self.player_symbol = player_symbol
+    self.previous_square = None
     self.square = None
 
   def __str__(self):
@@ -204,3 +229,6 @@ class Pawn:
 
   def set_square(self, square):
     self.square = square
+
+  def reset_square(self):
+    self.previous_square = self.square
