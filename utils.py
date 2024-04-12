@@ -19,3 +19,13 @@ def get_number_from_operation(operation_choice, square_number, dice):
       final_number = square_number / dice
 
     return int(final_number)
+
+def is_prime(n):
+    if n < 2:
+        return False
+    i = 2
+    while i*i <= n:
+        if n % i == 0:
+            return False
+        i += 1
+    return True

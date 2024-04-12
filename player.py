@@ -8,6 +8,10 @@ class Player:
   def __init__(self, player_symbol):
     self.player_symbol = player_symbol
     self.pawns = [Pawn(player_symbol), Pawn(player_symbol)]
+    self.cards = []
+
+  def set_other_player(self, other_player):
+    self.other_player = other_player
 
   def play_move(self, board : Board):
     if board.power_cards_mode:
@@ -29,13 +33,12 @@ class Player:
   def play_move_power_card(self, board: Board):
     print(f"It is now player {self.player_symbol}'s turn.\n")
     self.display_current_pawns(self.pawns)
+    self.display_current_cards(self.cards)
+
     while True:
-      user_action = input("What do you want to do? r to roll dice, k to use keeper cards: ")
+      user_action = input("What do you want to do? r to roll dice: ")
       if user_action == "r":
         return self.play_dice(board)
-        
-      elif user_action == "k":
-        pass
       else:
         print("That is not a valid move!\n")
 
@@ -46,7 +49,9 @@ class Player:
       move_complete = False
 
       while not move_complete:
-        pawn_choice = self.choose_pawn(self.pawns, dice)
+        self.prompt_choose_execute_card(board)
+
+        pawn_choice = self.choose_pawn(self.pawns)
         action = self.choose_operation()
         move = Move(dice, pawn_choice, action)
         is_valid_move, error = board.validate_move(move.dice_roll, move.pawn, move.operation)
@@ -59,7 +64,8 @@ class Player:
             return [] # We leave it to state.py to manage victory conditions
         else:
           print(error)
-
+          
+    self.prompt_choose_execute_card(board)
     return [] # Return an empty list of moves as they have been applied already.
   
   def roll_and_choose_dice(self):
@@ -86,7 +92,7 @@ class Player:
 
     return [dice_choice_int, other_choice]
 
-  def choose_pawn(self, pawns, dice):
+  def choose_pawn(self, pawns):
     pawn_one, pawn_two = pawns
     if pawn_one.square.number == END_SQUARE:
       return pawn_two
@@ -99,7 +105,7 @@ class Player:
     pawn_index_int = None
 
     while pawn_choice not in pawn_numbers:
-      pawn_choice = input(f"Which pawn to use for dice {dice}: ")
+      pawn_choice = input(f"Which pawn to use: ")
       if pawn_choice not in pawn_numbers:
         print("Enter a valid pawn number!\n")
 
@@ -118,10 +124,47 @@ class Player:
 
     return operation_choice
 
+  def add_card(self, card):
+    self.cards.append(card)
+
+  def prompt_choose_execute_card(self, board):
+    if len(self.cards) == 0:
+      return
+    
+    user_action = input("Do you want to use a keeper card? Write y to use: ")
+    if user_action == "y":
+      card = self.choose_card()
+      card.execute(board, self, self.other_player)
+
+  def choose_card(self):
+    if len(self.cards) == 1:
+      card = self.cards[0]
+      self.cards.remove(card)
+      return card
+    
+    card_choices = [str(i + 1) for i in range(len(self.cards))]
+
+    card_choice = None
+    while card_choice not in card_choices:
+      card_choice = input(f"Which card number will you like to pick: ")
+      if card_choice not in card_choices:
+        print("Enter a valid card index!")
+
+    card_choice_int = int(card_choice) - 1
+    card = self.cards[card_choice_int]
+    self.cards.remove(card)
+    return card
+  
   def display_current_pawns(self, pawns):
     output_string = ""
     for i in range(NUMBER_OF_PAWNS):
       output_string += f"Pawn {i + 1} is on square {pawns[i].square.number}.\n"
+    print(output_string)
+
+  def display_current_cards(self, cards):
+    output_string = "Keeper cards available:\n"
+    for i in range(len(cards)):
+      output_string += f"Card {i + 1}: {cards[i].description()}.\n"
     print(output_string)
 
 class PlayerAI:

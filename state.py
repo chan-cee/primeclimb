@@ -30,31 +30,55 @@ class Engine:
       if input("Do you want to start a new game? Write y to continue: ") != 'y':
         break
     display_end()
-
+    
   def play_game(self):
     self.state.intialize_clean_state(self.player_mode, self.power_cards_mode)
     self.global_playing = True
 
+    turn = 0 # 0 is for first player, 1 is for odd.
     while self.global_playing:
-      for player in self.state.players:
-        self.state.board.print_board()
-        moves = player.play_move(self.state.board)
+      player = self.state.players[turn]
+      other_player = self.state.players[(turn + 1) % 2]
 
-        if self.state.board.check_win(player.player_symbol): # We check for player victories
+      self.state.board.print_board()
+      moves = player.play_move(self.state.board)
+
+      if self.state.board.check_win(player.player_symbol): # We check for player victories
+        print(f"Player {player.player_symbol} won!\n")
+        self.global_playing = False
+        break
+
+      for move in moves: # For AI moves as player returns empty moves.
+        self.state.board.apply_move(move.dice_roll, move.pawn, move.operation)
+
+        if self.state.board.check_win(player.player_symbol): # We check for AI victories
           print(f"Player {player.player_symbol} won!\n")
           self.global_playing = False
           break
 
-        for move in moves: # For AI moves as player returns empty moves.
-          self.state.board.apply_move(move.dice_roll, move.pawn, move.operation)
+      if self.power_cards_mode:
+        prime_squares = self.state.board.find_prime_squares(player.player_symbol)
+        if len(prime_squares) > 0:
+          card = self.state.board.deck.draw_card()
+          print(f"Player {player.player_symbol} drew card \"{card.description()}\"!\n")
 
-          if self.state.board.check_win(player.player_symbol): # We check for AI victories
-            print(f"Player {player.player_symbol} won!\n")
-            self.global_playing = False
-            break
+          if card.is_keeper():
+            print(f"Player {player.player_symbol} keeps the keeper card!\n")
+            player.add_card(card)
 
-        if not self.global_playing:
-          break
+          elif card.is_roll_again():
+            print(f"Player {player.player_symbol} rolls again!\n")
+            continue
+
+          else:
+            print(f"An action card is drawn!\n")
+            card.execute(self.state.board, player, other_player)
+
+      if not self.global_playing:
+        break
+
+      turn = (turn + 1) % 2
+      
 
 
 class State:
@@ -75,6 +99,10 @@ class State:
   def initialize_players(self, player_mode):
     player_one = player.Player(PLAYER_X)
     player_two = player.Player(PLAYER_Y) if player_mode else player.PlayerAI(PLAYER_AI)
+
+    player_one.set_other_player(player_two)
+    player_two.set_other_player(player_one)
+
     self.players = [player_one, player_two]
 
   def place_pawns_on_start(self, player_one, player_two):

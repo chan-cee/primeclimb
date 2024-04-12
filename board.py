@@ -2,6 +2,7 @@ import math
 from utils import *
 from square import *
 from constants import *
+from deck import *
 
 class Board:
   def __init__(self):
@@ -12,7 +13,7 @@ class Board:
 
   def initialize_deck(self):
     self.power_cards_mode = True
-    pass
+    self.deck = Deck()
 
   def check_win(self, symbol):
     count = 0
@@ -21,6 +22,15 @@ class Board:
         count += 1
 
     return count == 2
+
+  def find_prime_squares(self, symbol):
+    output_squares = []
+
+    for square in self.board:
+      if str(square.pawn) == symbol and is_prime(square.number) and square.number > 10:
+         output_squares.append(square)
+
+    return output_squares
 
   def get_pawn_squares(self, player_symbol):
     output_squares = []
