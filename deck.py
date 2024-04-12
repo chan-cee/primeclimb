@@ -1,4 +1,5 @@
 import random
+from utils import *
 
 class Deck:
   def __init__(self) -> None:
@@ -66,7 +67,21 @@ class AddSubtractKeeperCard(Card):
     return False
 
   def execute(self, board, player, other_player):
-    pass
+    valid_operations = ["a", "s"]
+    move_complete = False
+
+    while not move_complete:
+      pawn_choice = player.choose_pawn(player.pawns)
+      operation_choice = player.choose_operation(valid_operations)
+      move = Move(self.digit, pawn_choice, operation_choice)
+      is_valid_move, error = board.validate_move(move.dice_roll, move.pawn, move.operation)
+
+      if is_valid_move:
+        move_complete = True
+        result = board.apply_move(move.dice_roll, move.pawn, move.operation)
+        print(result)
+      else:
+        print(error)
 
 class TwoSpacesKeeperCard(Card):
   def __init__(self) -> None:
@@ -82,7 +97,16 @@ class TwoSpacesKeeperCard(Card):
     return False
   
   def execute(self, board, player, other_player):
-    pass
+    pawn_choice = player.choose_pawn(player.pawns)
+    square_number = pawn_choice.square.number
+
+    for i in range(square_number - 2, square_number + 3):
+      square = board.get_square_from_number(square_number)
+      start_square = board.start_square
+      if not square.is_end_square() and i != square_number:
+        board.move_pawn(square.pawn, square, start_square)
+        print(f"Sent pawn from {square.number} to start\n")
+
 
 class SubtractOrDivideKeeperCard(Card):
   def __init__(self) -> None:
@@ -98,7 +122,8 @@ class SubtractOrDivideKeeperCard(Card):
     return False
   
   def execute(self, board, player, other_player):
-    pass
+    other_player.restrict_operations()
+    print(f"Restricted player {other_player.player_symbol} operations to subtract and divide.\n")
 
 class RollAgainActionCard(Card):
   def __init__(self) -> None:

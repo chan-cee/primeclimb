@@ -104,5 +104,3 @@ class Board:
       print('| ' +  ' | '.join(' ' if str(self.board[i * ROW + j]) == '_' else str(self.board[i * ROW + j]) for j in range(COL)) + ' |')
     print(horizontal_rule)
     print(self.end_square)
-
-  

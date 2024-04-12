@@ -1,3 +1,9 @@
+class Move:
+  def __init__(self, dice_roll, pawn, operation):
+    self.dice_roll = dice_roll
+    self.pawn = pawn
+    self.operation = operation 
+    
 def display_introduction():
   intro_string = "TODO"
   return intro_string

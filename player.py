@@ -1,17 +1,22 @@
 import random
-import state
 from board import *
 from constants import *
-
 
 class Player:
   def __init__(self, player_symbol):
     self.player_symbol = player_symbol
     self.pawns = [Pawn(player_symbol), Pawn(player_symbol)]
+    self.all_operations = True
     self.cards = []
 
   def set_other_player(self, other_player):
     self.other_player = other_player
+
+  def restrict_operations(self):
+    self.all_operations = False
+    
+  def enable_operations(self):
+    self.all_operations = True
 
   def play_move(self, board : Board):
     if board.power_cards_mode:
@@ -50,9 +55,11 @@ class Player:
 
       while not move_complete:
         self.prompt_choose_execute_card(board)
-
-        pawn_choice = self.choose_pawn(self.pawns)
-        action = self.choose_operation()
+        if board.check_win(self.player_symbol):
+          return [] # We leave it to state.py to manage victory conditions
+        
+        pawn_choice = self.choose_pawn(self.pawns) 
+        action = self.choose_operation(self.get_valid_operations())
         move = Move(dice, pawn_choice, action)
         is_valid_move, error = board.validate_move(move.dice_roll, move.pawn, move.operation)
 
@@ -66,6 +73,9 @@ class Player:
           print(error)
           
     self.prompt_choose_execute_card(board)
+    if board.check_win(self.player_symbol):
+      return [] # We leave it to state.py to manage victory conditions
+    
     return [] # Return an empty list of moves as they have been applied already.
   
   def roll_and_choose_dice(self):
@@ -112,14 +122,22 @@ class Player:
     pawn_index_int = int(pawn_choice) - 1
     return pawns[pawn_index_int]
   
-  def choose_operation(self):
-    OPERATION_CHOICES = ["a", "s", "m", "d"]
+  def get_valid_operations(self):
+    if self.all_operations:
+      return ["a", "s", "m", "d"]
+    else:
+      return ["s", "d"]
+  
+  def choose_operation(self, operation_choices):
+
+    op_string = ", ".join(operation_choices)
+    input_string = "Choose " + op_string + ": "
 
     operation_choice = None
-    while operation_choice not in OPERATION_CHOICES:
+    while operation_choice not in operation_choices:
       print("What math operation do you want to apply on your pawn?")
-      operation_choice = input(f"Choose a, s, m or d: ")
-      if operation_choice not in OPERATION_CHOICES:
+      operation_choice = input(input_string)
+      if operation_choice not in operation_choices:
         print("Enter a valid math operation!")
 
     return operation_choice
@@ -134,6 +152,7 @@ class Player:
     user_action = input("Do you want to use a keeper card? Write y to use: ")
     if user_action == "y":
       card = self.choose_card()
+      print(f"Using card \"{card.description()}\"")
       card.execute(board, self, self.other_player)
 
   def choose_card(self):
@@ -174,12 +193,6 @@ class PlayerAI:
 
   def play_move(self, board: Board): # Should return a list of valid Moves that needs to be made by the AI
     pass
-
-class Move:
-  def __init__(self, dice_roll, pawn, operation):
-    self.dice_roll = dice_roll
-    self.pawn = pawn
-    self.operation = operation 
 
 class Pawn:
   def __init__(self, player_symbol):

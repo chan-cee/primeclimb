@@ -76,7 +76,8 @@ class Engine:
 
       if not self.global_playing:
         break
-
+      
+      player.enable_operations()
       turn = (turn + 1) % 2
       
 
