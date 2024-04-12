@@ -5,37 +5,31 @@ from constants import *
 class Deck:
   def __init__(self) -> None:
     self.cards = [
+      AddSubtractKeeperCard(1),
+      AddSubtractKeeperCard(2),
+      AddSubtractKeeperCard(3),
+      AddSubtractKeeperCard(4),
+      AddSubtractKeeperCard(5),
+      AddSubtractKeeperCard(6),
+      AddSubtractKeeperCard(7),
+      AddSubtractKeeperCard(8),
+      AddSubtractKeeperCard(9),
+      TwoSpacesKeeperCard(),
+      TwoSpacesKeeperCard(),
+      SubtractOrDivideKeeperCard(),
+      SubtractOrDivideKeeperCard(),
+      RollAgainActionCard(),
+      RollAgainActionCard(),
+      RollAgainActionCard(),
+      AddSubtractFiftyActionCard(),
+      FiftySubtractTenOrDoubleActionCard(),
+      AdvanceToNearestPawnActionCard(),
+      ReverseToNearestPawnActionCard(),
+      ReverseDigitsActionCard(),
+      SwitchTwoPawnsActionCard(),
       SendPawnToSixtyFourActionCard(),
-      SendPawnToSixtyFourActionCard(),
-      SendPawnToSixtyFourActionCard()
+      StealOtherActionCard()
     ]
-
-    # self.cards = [
-    #   AddSubtractKeeperCard(1),
-    #   AddSubtractKeeperCard(2),
-    #   AddSubtractKeeperCard(3),
-    #   AddSubtractKeeperCard(4),
-    #   AddSubtractKeeperCard(5),
-    #   AddSubtractKeeperCard(6),
-    #   AddSubtractKeeperCard(7),
-    #   AddSubtractKeeperCard(8),
-    #   AddSubtractKeeperCard(9),
-    #   TwoSpacesKeeperCard(),
-    #   TwoSpacesKeeperCard(),
-    #   SubtractOrDivideKeeperCard(),
-    #   SubtractOrDivideKeeperCard(),
-    #   RollAgainActionCard(),
-    #   RollAgainActionCard(),
-    #   RollAgainActionCard(),
-    #   AddSubtractFiftyActionCard(),
-    #   FiftySubtractTenOrDoubleActionCard(),
-    #   AdvanceToNearestPawnActionCard(),
-    #   ReverseToNearestPawnActionCard(),
-    #   ReverseDigitsActionCard(),
-    #   SwitchTwoPawnsActionCard(),
-    #   SendPawnToSixtyFourActionCard(),
-    #   StealOtherActionCard()
-    # ]
 
     random.shuffle(self.cards)
 
