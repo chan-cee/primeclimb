@@ -73,7 +73,7 @@ class AddSubtractKeeperCard(Card):
 
     while not move_complete:
       pawn_choice = player.choose_pawn(player.pawns, self.digit)
-      operation_choice = player.choose_operation(valid_operations)
+      operation_choice = player.choose_operation(valid_operations, self.digit, pawn_choice)
       move = Move(self.digit, pawn_choice, operation_choice)
       is_valid_move, error = board.validate_move(move.dice_roll, move.pawn, move.operation)
 

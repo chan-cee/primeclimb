@@ -54,12 +54,16 @@ class Player:
       move_complete = False
 
       while not move_complete:
-        self.prompt_choose_execute_card(board)
+
+        while len(self.cards) > 0:      
+          if not self.prompt_choose_execute_card(board):
+            break
+
         if board.check_win(self.player_symbol):
           return [] # We leave it to state.py to manage victory conditions
         
         pawn_choice = self.choose_pawn(self.pawns, dice) 
-        action = self.choose_operation(self.get_valid_operations())
+        action = self.choose_operation(self.get_valid_operations(), dice, pawn_choice)
         move = Move(dice, pawn_choice, action)
         is_valid_move, error = board.validate_move(move.dice_roll, move.pawn, move.operation)
 
@@ -71,8 +75,11 @@ class Player:
             return [] # We leave it to state.py to manage victory conditions
         else:
           print(error)
-          
-    self.prompt_choose_execute_card(board)
+
+    while len(self.cards) > 0:      
+      if not self.prompt_choose_execute_card(board):
+        break
+
     if board.check_win(self.player_symbol):
       return [] # We leave it to state.py to manage victory conditions
     
@@ -149,14 +156,14 @@ class Player:
     else:
       return ["s", "d"]
   
-  def choose_operation(self, operation_choices):
+  def choose_operation(self, operation_choices, movement, pawn):
 
     op_string = ", ".join(operation_choices)
     input_string = "Choose " + op_string + ": "
 
     operation_choice = None
     while operation_choice not in operation_choices:
-      print("What math operation do you want to apply on your pawn?")
+      print(f"What math operation to apply on your pawn at {pawn.square.number} for movement {movement}?")
       operation_choice = input(input_string)
       if operation_choice not in operation_choices:
         print("Enter a valid math operation!")
@@ -166,15 +173,18 @@ class Player:
   def add_card(self, card):
     self.cards.append(card)
 
-  def prompt_choose_execute_card(self, board):
+  def prompt_choose_execute_card(self, board): # Returns True is a card is executed
     if len(self.cards) == 0:
-      return
+      return False
     
     user_action = input("Do you want to use a keeper card? Write y to use: ")
     if user_action == "y":
       card = self.choose_card()
       print(f"Using card \"{card.description()}\"")
       card.execute(board, self, self.other_player)
+      return True
+    else:
+      return False
 
   def choose_card(self):
     if len(self.cards) == 1:
