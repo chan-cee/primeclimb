@@ -13,16 +13,27 @@ class Engine:
   
   def run(self):
     display_introduction()
-    player_or_ai = input("Play with other player? Write y for yes: ")
-    if player_or_ai == 'y':
-      self.player_mode = True
-      power_cards_choice = input("Play with action cards? Write y for yes: ")
-      if power_cards_choice == 'y':
-        self.power_cards_mode = True
-      else:
-        self.power_cards_mode = False
+    print(GAME_MODE_STRING)
+    game_mode = input("Game mode?: ")
+    if game_mode == '2':
+      # Two Player
+      self.game_mode = 2
+      self.power_cards_mode = False
+    elif game_mode == '3':
+      # Two Player with power Cards
+      self.game_mode = 3
+      self.power_cards_mode = True
+    elif game_mode == '4':
+      # Single AI
+      self.game_mode = 4
+      self.power_cards_mode = False
+    elif game_mode == '5':
+      # Player vs AI
+      self.game_mode = 5
+      self.power_cards_mode = False
     else:
-      self.player_mode = False
+      # Single Player
+      self.game_mode = 1
       self.power_cards_mode = False
       
     while True:
@@ -32,7 +43,7 @@ class Engine:
     display_end()
     
   def play_game(self):
-    self.state.intialize_clean_state(self.player_mode, self.power_cards_mode)
+    self.state.intialize_clean_state(self.game_mode, self.power_cards_mode)
     self.global_playing = True
 
     turn = 0 # 0 is for first player, 1 is for odd.
@@ -80,7 +91,10 @@ class Engine:
         break
       
       player.enable_operations()
-      turn = (turn + 1) % 2
+      if other_player.player_symbol == PLAYER_DUMMY:
+        turn = 0
+      else:
+        turn = (turn + 1) % 2
       
 
 
@@ -88,9 +102,9 @@ class State:
   def __init__(self):
     pass
 
-  def intialize_clean_state(self, player_mode, power_cards_mode):
+  def intialize_clean_state(self, game_mode, power_cards_mode):
     self.initialize_board()
-    self.initialize_players(player_mode)
+    self.initialize_players(game_mode)
     if power_cards_mode:
       self.board.initialize_deck()
 
@@ -99,14 +113,29 @@ class State:
   def initialize_board(self):
     self.board = Board()
 
-  def initialize_players(self, player_mode):
-    player_one = player.Player(PLAYER_X)
-    player_two = player.Player(PLAYER_Y) if player_mode else player.PlayerAI(PLAYER_AI)
-
-    player_one.set_other_player(player_two)
-    player_two.set_other_player(player_one)
-
-    self.players = [player_one, player_two]
+  def initialize_players(self, game_mode):
+    if game_mode == 1:
+      player_one = player.Player(PLAYER_X)
+      player_two = player.Player(PLAYER_DUMMY)
+      self.players = [player_one, player_two]
+    elif game_mode == 2:
+      player_one = player.Player(PLAYER_X)
+      player_two = player.Player(PLAYER_Y)
+      self.players = [player_one, player_two]
+    elif game_mode == 3:
+      player_one = player.Player(PLAYER_X)
+      player_two = player.Player(PLAYER_Y)
+      player_one.set_other_player(player_two)
+      player_two.set_other_player(player_one)
+      self.players = [player_one, player_two]
+    elif game_mode == 4:
+      player_one = player.PlayerAI(PLAYER_AI)
+      player_two = player.Player(PLAYER_DUMMY)
+      self.players = [player_one, player_two]
+    elif game_mode == 5:
+      player_one = player.Player(PLAYER_X)
+      player_two = player.PlayerAI(PLAYER_AI)
+      self.players = [player_one, player_two]
 
   def place_pawns_on_start(self, player_one, player_two):
     for i in range(NUMBER_OF_PAWNS):

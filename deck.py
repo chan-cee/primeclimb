@@ -102,7 +102,7 @@ class TwoSpacesKeeperCard(Card):
     square_number = pawn_choice.square.number
 
     for i in range(square_number - 2, square_number + 3):
-      square = board.get_square_from_number(square_number)
+      square = board.get_square_from_number(i)
       start_square = board.start_square
       if not square.is_end_square() and i != square_number and square.has_pawn():
         result_message = board.move_pawn(square.pawn, square, start_square)
