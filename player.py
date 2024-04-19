@@ -271,6 +271,9 @@ class PlayerAI:
               best_move = None
               children = node.generate_children()
               for board, moves_so_far in children:
+                  if board.check_win(player_symbol):
+                    return POSITIVE_INFINITY, moves_so_far
+
                   child_node = Node(board, self.other_player, True, None)
                   score, _ = self.depth_limited_search(child_node, depth - 1, alpha, beta, other_player, True)
                   if score > max_score:
@@ -286,6 +289,9 @@ class PlayerAI:
               best_move = None
               children = node.generate_children()
               for board, moves_so_far in children:
+                  if board.check_win(player_symbol):
+                    return NEGATIVE_INFINITY, moves_so_far
+                  
                   child_node = Node(board, self.player_symbol, True, None)
                   score, _ = self.depth_limited_search(child_node, depth - 1, alpha, beta, other_player, False)
                   if score < min_score:
@@ -377,7 +383,10 @@ class Node:
 
     while len(frontier) != 0:
       board, roll_number, moves_so_far = frontier.pop()
-      if roll_number == len(self.rolls) and not self.has_board(children, board):
+
+      if board.check_win(self.player_symbol):
+        children.append((board, moves_so_far))
+      elif roll_number == len(self.rolls) and not self.has_board(children, board):
         children.append((board, moves_so_far))
 
       elif roll_number != len(self.rolls):

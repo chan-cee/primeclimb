@@ -26,8 +26,10 @@ def bfs():
       frontier.append((new_number_four, counter + 1))
 
   for i in range(len(distance)):
-    distance[i] = distance[i] + 0.01 * (101 - i)
+    distance[i] = distance[i] + 1 + 0.01 * (101 - i)
     distance[i] = round(distance[i], 2)
+
+  distance[-1] -= 1 # Add extra reward for bringing a pawn to 101
 
   return distance
 
