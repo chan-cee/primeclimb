@@ -72,14 +72,15 @@ class AddSubtractKeeperCard(Card):
     move_complete = False
 
     while not move_complete:
-      pawn_choice = player.choose_pawn(player.pawns, self.digit)
+      pawn_choice_index = player.choose_pawn_index(player.pawns, self.digit)
+      pawn_choice = player.pawns[pawn_choice_index]
       operation_choice = player.choose_operation(valid_operations, self.digit, pawn_choice)
-      move = Move(self.digit, pawn_choice, operation_choice)
-      is_valid_move, error = board.validate_move(move.dice_roll, move.pawn, move.operation)
+      move = Move(self.digit, pawn_choice_index, operation_choice)
+      is_valid_move, error = board.validate_move(move.dice_roll, pawn_choice, move.operation)
 
       if is_valid_move:
         move_complete = True
-        result = board.apply_move(move.dice_roll, move.pawn, move.operation)
+        result = board.apply_move(move.dice_roll, pawn_choice, move.operation)
         print(result)
       else:
         print(error)
@@ -98,7 +99,8 @@ class TwoSpacesKeeperCard(Card):
     return False
   
   def execute(self, board, player, other_player):
-    pawn_choice = player.choose_pawn(player.pawns, "\"Two spaces Card\"")
+    pawn_choice_index = player.choose_pawn_index(player.pawns, "\"Two spaces Card\"")
+    pawn_choice = player.pawns[pawn_choice_index]
     square_number = pawn_choice.square.number
 
     for i in range(square_number - 2, square_number + 3):

@@ -62,8 +62,9 @@ class Engine:
         break
 
       for move in moves: # For AI moves as player returns empty moves.
-        self.state.board.apply_move(move.dice_roll, move.pawn, move.operation)
-
+        result = self.state.board.apply_move(move.dice_roll, player.pawns[move.pawn_index], move.operation)
+        print(result)
+        
         if self.state.board.check_win(player.player_symbol): # We check for AI victories
           print(f"Player {player.player_symbol} won!\n")
           self.global_playing = False
@@ -117,10 +118,14 @@ class State:
     if game_mode == 1:
       player_one = player.Player(PLAYER_X)
       player_two = player.Player(PLAYER_DUMMY)
+      player_one.set_other_player(player_two)
+      player_two.set_other_player(player_one)
       self.players = [player_one, player_two]
     elif game_mode == 2:
       player_one = player.Player(PLAYER_X)
       player_two = player.Player(PLAYER_Y)
+      player_one.set_other_player(player_two)
+      player_two.set_other_player(player_one)
       self.players = [player_one, player_two]
     elif game_mode == 3:
       player_one = player.Player(PLAYER_X)
@@ -131,10 +136,14 @@ class State:
     elif game_mode == 4:
       player_one = player.PlayerAI(PLAYER_AI)
       player_two = player.Player(PLAYER_DUMMY)
+      player_one.set_other_player(player_two.player_symbol)
+      player_two.set_other_player(player_one.player_symbol)
       self.players = [player_one, player_two]
     elif game_mode == 5:
       player_one = player.Player(PLAYER_X)
       player_two = player.PlayerAI(PLAYER_AI)
+      player_one.set_other_player(player_two.player_symbol)
+      player_two.set_other_player(player_one.player_symbol)
       self.players = [player_one, player_two]
 
   def place_pawns_on_start(self, player_one, player_two):

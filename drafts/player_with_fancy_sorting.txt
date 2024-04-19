@@ -259,7 +259,7 @@ class PlayerAI:
           global_score = 0
           for roll in all_rolls:
               child_node = Node(node.board, player_symbol, False, roll)
-              score, _ = self.depth_limited_search(child_node, depth - 1, alpha, beta, other_player, False)
+              score, _ = self.depth_limited_search(child_node, depth-1, alpha, beta, other_player, False)
               global_score += all_rolls[roll] * score
               if beta <= alpha:
                   break  # beta cut-off
@@ -269,10 +269,10 @@ class PlayerAI:
           if player_symbol == self.player_symbol:  # Maximizing player
               max_score = float('-inf')
               best_move = None
-              children = node.generate_children()
+              children = node.generate_children(self.player_symbol, self.other_player)
               for board, moves_so_far in children:
                   child_node = Node(board, self.other_player, True, None)
-                  score, _ = self.depth_limited_search(child_node, depth - 1, alpha, beta, other_player, True)
+                  score, _ = self.depth_limited_search(child_node, depth-1, alpha, beta, other_player, True)
                   if score > max_score:
                       max_score = score
                       best_move = moves_so_far
@@ -284,10 +284,10 @@ class PlayerAI:
           else:  # Minimizing player
               min_score = float('inf')
               best_move = None
-              children = node.generate_children()
+              children = node.generate_children(self.player_symbol, self.other_player)
               for board, moves_so_far in children:
                   child_node = Node(board, self.player_symbol, True, None)
-                  score, _ = self.depth_limited_search(child_node, depth - 1, alpha, beta, other_player, False)
+                  score, _ = self.depth_limited_search(child_node, depth-1, alpha, beta, other_player, False)
                   if score < min_score:
                       min_score = score
                       best_move = moves_so_far
@@ -295,6 +295,51 @@ class PlayerAI:
                   if beta <= alpha:
                       break  # beta cut-off
               return min_score, best_move
+  
+  # def depth_limited_search(self, node, depth, player_symbol, is_chance):
+  #   curr_player = player_symbol if player_symbol == self.player_symbol else self.other_player
+  #   other_player = self.other_player if player_symbol == self.player_symbol else player_symbol
+
+  #   if depth == 0 or node.is_win(curr_player):
+  #     return node.evaluate(self.player_symbol, self.other_player), None
+    
+  #   elif is_chance:
+  #     # AI turn and chance
+  #     all_rolls = rolls()
+  #     global_score = 0
+  #     for roll in all_rolls:
+  #       child_node = Node(node.board, player_symbol, False, roll)
+  #       score, moves = self.depth_limited_search(child_node, depth, player_symbol, False)
+  #       global_score += all_rolls[roll] * score
+        
+  #     return global_score, None
+  #   elif player_symbol == self.player_symbol:
+  #     # AI turn
+  #     global_score = NEGATIVE_INFINITY
+  #     global_move = None
+  #     children = node.generate_children()
+  #     for board, moves_so_far in children:
+  #       child_node = Node(board, self.other_player, True, None)
+  #       score, moves = self.depth_limited_search(child_node, depth - 1, self.other_player, True)
+  #       if score > global_score:
+  #         global_score = score
+  #         global_move = moves_so_far
+
+  #     return global_score, global_move
+    
+  #   else:
+  #     # Other turn
+  #     global_score = POSITIVE_INFINITY
+  #     global_move = None
+  #     children = node.generate_children()
+  #     for board, moves_so_far in children:
+  #       child_node = Node(board, self.player_symbol, True, None)
+  #       score, moves = self.depth_limited_search(child_node, depth - 1, self.player_symbol, True)
+  #       if score < global_score:
+  #         global_score = score
+  #         global_move = moves_so_far
+
+  #     return global_score, global_move
 
 class Pawn:
   def __init__(self, player_symbol, index):
@@ -369,8 +414,8 @@ class Node:
       if self.compare(b, board):
         return True
     return False
-
-  def generate_children(self):
+  
+  def generate_children(self, AI_symbol, other_player_symbol):
     operations = ['a', 's', 'm', 'd']
     frontier = [(self.board, 0, [])]
     children = []
@@ -399,5 +444,8 @@ class Node:
               new_moves = [old_move for old_move in moves_so_far]
               new_moves.append(move)
               frontier.append((new_board, roll_number + 1, new_moves))
-    
+
+    reverse = self.player_symbol == AI_symbol
+    children.sort(reverse=reverse, key=eval_comparator(AI_symbol, other_player_symbol))
+
     return children

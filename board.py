@@ -3,6 +3,7 @@ from utils import *
 from square import *
 from constants import *
 from deck import *
+import player
 
 class Board:
   def __init__(self):
@@ -32,7 +33,28 @@ class Board:
          output_squares.append(square)
 
     return output_squares
+  
+  def get_pawns(self, player_symbol):
+    pawns = [None, None]
+    for i in range(102):
+      square = self.get_square_from_number(i)
+      if i == 0 or i == 101:
+        square_pawns = square.get_pawn()
+        for p in square_pawns:
+          if p.player_symbol == player_symbol and p.index == 0:
+            pawns[0] = p
+          elif p.player_symbol == player_symbol and p.index == 1:
+            pawns[1] = p
 
+      elif square.has_pawn():
+        p = square.get_pawn()
+        if p.player_symbol == player_symbol and p.index == 0:
+          pawns[0] = p
+        elif p.player_symbol == player_symbol and p.index == 1:
+          pawns[1] = p
+
+    return pawns
+  
   def get_pawn_squares(self, player_symbol):
     output_squares = []
     for pawn in self.start_square.pawns:
@@ -116,3 +138,23 @@ class Board:
       print('| ' +  ' | '.join(' ' if str(self.board[i * ROW + j]) == '_' else str(self.board[i * ROW + j]) for j in range(COL)) + ' |')
     print(horizontal_rule)
     print(self.end_square)
+
+  def get_copy(self):
+    new_board = Board()
+    
+    for i in range(102):
+      old_square = self.get_square_from_number(i)
+      new_square = new_board.get_square_from_number(i)
+      if i == 0 or i == 101:
+        pawns = old_square.get_pawn()
+        for p in pawns:
+          new_pawn = player.Pawn(p.player_symbol, p.index)
+          new_square.add_pawn(new_pawn)
+
+      elif old_square.has_pawn():
+        old_pawn = old_square.get_pawn()
+        new_pawn = player.Pawn(old_pawn.player_symbol, old_pawn.index)
+        new_square.add_pawn(new_pawn)
+
+    return new_board
+        
